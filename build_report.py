@@ -73,23 +73,29 @@ def build_full_report(data):
     nft_net = nft_total_in - nft_total_out
     nft_net_usd = nft_total_in_usd - nft_total_out_usd
 
-    # Token trades
+    # Token trades — skip 0-ETH transfers (wallet moves, not trades)
     token_data = {}
     for t in token_trades:
         sym = t['token']
         if sym in ('WETH', 'Blur Pool'):
-            continue  # wrapping/unwrapping ETH, not real trades
+            continue
         if sym not in token_data:
-            token_data[sym] = {'name': t['token_name'], 'in': 0, 'out': 0, 'eth_in': 0, 'eth_out': 0, 'usd_in': 0, 'usd_out': 0}
-        p = get_price(prices, t['date']) if t['date'] else 0
+            token_data[sym] = {'name': t['token_name'], 'in': 0, 'out': 0, 'eth_in': 0, 'eth_out': 0, 'usd_in': 0, 'usd_out': 0, 'amt_in': 0, 'amt_out': 0}
+        amt = t.get('amount', 0)
         if t['type'] == 'in':
-            token_data[sym]['in'] += 1
-            token_data[sym]['eth_out'] += t['value_eth']  # bought token = spent ETH
-            token_data[sym]['usd_out'] += t['value_eth'] * p
+            token_data[sym]['amt_in'] += amt
+            if t['value_eth'] > 0.001:
+                token_data[sym]['in'] += 1
+                token_data[sym]['eth_out'] += t['value_eth']
+                p = get_price(prices, t['date']) if t['date'] else 0
+                token_data[sym]['usd_out'] += t['value_eth'] * p
         else:
-            token_data[sym]['out'] += 1
-            token_data[sym]['eth_in'] += t['value_eth']  # sold token = received ETH
-            token_data[sym]['usd_in'] += t['value_eth'] * p
+            token_data[sym]['amt_out'] += amt
+            if t['value_eth'] > 0.001:
+                token_data[sym]['out'] += 1
+                token_data[sym]['eth_in'] += t['value_eth']
+                p = get_price(prices, t['date']) if t['date'] else 0
+                token_data[sym]['usd_in'] += t['value_eth'] * p
 
     sorted_tokens = sorted(token_data.items(), key=lambda x: x[1]['eth_in'] + x[1]['eth_out'], reverse=True)
     top_tokens = [(k, v) for k, v in sorted_tokens if v['eth_in'] + v['eth_out'] > 0.05][:8]
@@ -129,10 +135,13 @@ def build_full_report(data):
     for sym, info in top_tokens:
         net_e = info['eth_in'] - info['eth_out']
         net_u = info['usd_in'] - info['usd_out']
+        balance = info['amt_in'] - info['amt_out']
+        bal_str = f'{balance:,.0f}' if balance > 0.5 else '0'
         token_rows += f'''<tr>
             <td class="wallet-name">{sym}<span class="addr">{info['name'][:25]}</span></td>
             <td class="num buy">{info['eth_out']:.2f}</td>
             <td class="num sell">{info['eth_in']:.2f}</td>
+            <td class="num" style="color:#58a6ff">{bal_str}</td>
             <td class="num {'profit' if net_e > 0 else 'loss'}">{net_e:+.2f}<span class="usd-sub">{fmt_usd(net_u)}</span></td>
         </tr>'''
 
@@ -290,13 +299,14 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
 <!-- Token Trading -->
 {f"""<div class="tbl-wrap">
     <div class="tbl-title">Token Trading</div>
-    <div class="tbl-note">ERC-20 tokens (excludes WETH wraps) &middot; All values in ETH</div>
+    <div class="tbl-note">ERC-20 tokens (excludes WETH wraps &amp; 0-ETH transfers) &middot; All values in ETH</div>
     <table>
         <thead>
             <tr>
                 <th style="text-align:left">Token</th>
                 <th>ETH Spent</th>
                 <th>ETH Received</th>
+                <th>Still Holds</th>
                 <th>Net (ETH)</th>
             </tr>
         </thead>
@@ -336,10 +346,13 @@ def build_gvc_report(data):
     # Filter to GVC only
     gvc_trades = [t for t in nft_trades if t['symbol'] == 'GVC']
 
-    # VIBESTR token trades
+    # VIBESTR token trades — only count real trades (with ETH), not plain transfers
     vibestr_trades = [t for t in token_trades if t['token'] == 'VIBESTR']
-    vib_buys = [t for t in vibestr_trades if t['type'] == 'in']
-    vib_sells = [t for t in vibestr_trades if t['type'] == 'out']
+    vib_buys = [t for t in vibestr_trades if t['type'] == 'in' and t['value_eth'] > 0.001]
+    vib_sells = [t for t in vibestr_trades if t['type'] == 'out' and t['value_eth'] > 0.001]
+    vib_all_in = [t for t in vibestr_trades if t['type'] == 'in']
+    vib_all_out = [t for t in vibestr_trades if t['type'] == 'out']
+    vib_balance = sum(t.get('amount', 0) for t in vib_all_in) - sum(t.get('amount', 0) for t in vib_all_out)
     vib_buy_eth = sum(t['value_eth'] for t in vib_buys)
     vib_sell_eth = sum(t['value_eth'] for t in vib_sells)
     vib_buy_usd = sum(t['value_eth'] * get_price(prices, t['date']) for t in vib_buys if t['date'])
@@ -347,10 +360,10 @@ def build_gvc_report(data):
     vib_net_eth = vib_sell_eth - vib_buy_eth
     vib_net_usd = vib_sell_usd - vib_buy_usd
 
-    # VIBESTR monthly breakdown
+    # VIBESTR monthly breakdown (real trades only)
     vib_monthly = {}
     for t in vibestr_trades:
-        if not t['date']:
+        if not t['date'] or t['value_eth'] <= 0.001:
             continue
         month = t['date'][:7]
         if month not in vib_monthly:
@@ -618,7 +631,7 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
         <span>VIBESTR Token Trading</span>
         <span style="font-size:11px;font-family:'SF Mono',monospace;font-weight:800;color:{'#3fb950' if vib_net_eth > 0 else '#f85149'}">{vib_net_eth:+.2f} ETH <span style="color:#6e7681;font-weight:400">({fmt_usd(vib_net_usd)})</span></span>
     </div>
-    <div class="tbl-note">{len(vib_buys)} buys ({vib_buy_eth:.2f} ETH / {fmt_usd(vib_buy_usd)}) &middot; {len(vib_sells)} sells ({vib_sell_eth:.2f} ETH / {fmt_usd(vib_sell_usd)})</div>
+    <div class="tbl-note">{len(vib_buys)} buys ({vib_buy_eth:.2f} ETH / {fmt_usd(vib_buy_usd)}) &middot; {len(vib_sells)} sells ({vib_sell_eth:.2f} ETH / {fmt_usd(vib_sell_usd)}) &middot; Still holds: <span style="color:#58a6ff;font-weight:600">{vib_balance:,.0f} VIBESTR</span></div>
     <table>
         <thead>
             <tr>

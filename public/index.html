@@ -96,26 +96,26 @@ td { padding: 8px 12px; border-bottom: 1px solid #141c27; }
 
 <div class="hdr">
     <h1>Wallet Tracker<code>0x2546...591D</code></h1>
-    <span class="ts">Updated Nov 17, 2026 06:03 UTC</span>
+    <span class="ts">Updated Nov 17, 2026 06:07 UTC</span>
 </div>
 
 <div class="hero">
     <div class="hero-card hc-out">
         <div class="hc-label">Total ETH Spent</div>
         <div class="hc-value sell">304.00 ETH</div>
-        <div class="hc-usd sell">$917,173</div>
+        <div class="hc-usd sell">$917,169</div>
         <div class="hc-sub">NFT buys + token purchases</div>
     </div>
     <div class="hero-card hc-in">
         <div class="hc-label">Total ETH Received</div>
         <div class="hc-value buy">107.65 ETH</div>
-        <div class="hc-usd buy">$331,093</div>
+        <div class="hc-usd buy">$331,090</div>
         <div class="hc-sub">NFT sells + token sells</div>
     </div>
     <div class="hero-card hc-net">
         <div class="hc-label">Net P&L</div>
         <div class="hc-value sell">-196.35 ETH</div>
-        <div class="hc-usd sell">$586,079</div>
+        <div class="hc-usd sell">$586,080</div>
         <div class="hc-sub">USD at time of each tx (DeFiLlama)</div>
     </div>
 </div>
@@ -236,13 +236,14 @@ td { padding: 8px 12px; border-bottom: 1px solid #141c27; }
 <!-- Token Trading -->
 <div class="tbl-wrap">
     <div class="tbl-title">Token Trading</div>
-    <div class="tbl-note">ERC-20 tokens (excludes WETH wraps) &middot; All values in ETH</div>
+    <div class="tbl-note">ERC-20 tokens (excludes WETH wraps &amp; 0-ETH transfers) &middot; All values in ETH</div>
     <table>
         <thead>
             <tr>
                 <th style="text-align:left">Token</th>
                 <th>ETH Spent</th>
                 <th>ETH Received</th>
+                <th>Still Holds</th>
                 <th>Net (ETH)</th>
             </tr>
         </thead>
@@ -251,22 +252,26 @@ td { padding: 8px 12px; border-bottom: 1px solid #141c27; }
             <td class="wallet-name">VIBESTR<span class="addr">VibeStrategy</span></td>
             <td class="num buy">28.43</td>
             <td class="num sell">13.82</td>
+            <td class="num" style="color:#58a6ff">0</td>
             <td class="num loss">-14.61<span class="usd-sub">$81,357</span></td>
         </tr><tr>
             <td class="wallet-name">USDC<span class="addr">USDC</span></td>
             <td class="num buy">0.96</td>
-            <td class="num sell">5.03</td>
-            <td class="num profit">+4.06<span class="usd-sub">$13,401</span></td>
+            <td class="num sell">5.02</td>
+            <td class="num" style="color:#58a6ff">0</td>
+            <td class="num profit">+4.06<span class="usd-sub">$13,398</span></td>
         </tr><tr>
             <td class="wallet-name">WLFI<span class="addr">World Liberty Financial</span></td>
             <td class="num buy">3.25</td>
             <td class="num sell">2.16</td>
+            <td class="num" style="color:#58a6ff">39,752</td>
             <td class="num loss">-1.09<span class="usd-sub">$2,202</span></td>
         </tr><tr>
             <td class="wallet-name">APE<span class="addr">ApeCoin</span></td>
             <td class="num buy">0.05</td>
             <td class="num sell">0.05</td>
-            <td class="num loss">-0.00<span class="usd-sub">$4</span></td>
+            <td class="num" style="color:#58a6ff">1,470,358</td>
+            <td class="num loss">-0.00<span class="usd-sub">$2</span></td>
         </tr>
         </tbody>
     </table>
