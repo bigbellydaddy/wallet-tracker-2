@@ -45,21 +45,24 @@ def build_full_report(data):
     total_in_usd = 0
     total_out_usd = 0
 
-    # NFT USD calculations per collection
+    # NFT calculations — separate real sales (with ETH) from transfers (0 ETH)
     nft_data = {}
     for t in nft_trades:
         sym = t['symbol']
         if sym not in nft_data:
-            nft_data[sym] = {'name': t['collection'], 'buys': 0, 'sells': 0, 'eth_in': 0, 'eth_out': 0, 'usd_in': 0, 'usd_out': 0}
+            nft_data[sym] = {'name': t['collection'], 'buys': 0, 'sells': 0, 'transfers': 0, 'eth_in': 0, 'eth_out': 0, 'usd_in': 0, 'usd_out': 0}
         p = get_price(prices, t['date']) if t['date'] else 0
         if t['type'] == 'buy':
             nft_data[sym]['buys'] += 1
             nft_data[sym]['eth_out'] += t['value_eth']
             nft_data[sym]['usd_out'] += t['value_eth'] * p
         else:
-            nft_data[sym]['sells'] += 1
-            nft_data[sym]['eth_in'] += t['value_eth']
-            nft_data[sym]['usd_in'] += t['value_eth'] * p
+            if t['value_eth'] > 0.001:
+                nft_data[sym]['sells'] += 1
+                nft_data[sym]['eth_in'] += t['value_eth']
+                nft_data[sym]['usd_in'] += t['value_eth'] * p
+            else:
+                nft_data[sym]['transfers'] += 1
 
     # Sort by total volume
     sorted_nfts = sorted(nft_data.items(), key=lambda x: x[1]['eth_in'] + x[1]['eth_out'], reverse=True)
@@ -121,12 +124,15 @@ def build_full_report(data):
         n = info['name'][:20]
         net_e = info['eth_in'] - info['eth_out']
         net_u = info['usd_in'] - info['usd_out']
+        held = info['buys'] - info['sells'] - info['transfers']
+        held_str = str(held) if held > 0 else '0'
         nft_rows += f'''<tr>
             <td class="wallet-name">{sym}<span class="addr">{n}</span></td>
             <td class="num">{info['buys']}</td>
             <td class="num buy">{info['eth_out']:.2f}</td>
             <td class="num">{info['sells']}</td>
             <td class="num sell">{info['eth_in']:.2f}</td>
+            <td class="num" style="color:#58a6ff">{held_str}</td>
             <td class="num {'profit' if net_e > 0 else 'loss'}">{net_e:+.2f}<span class="usd-sub">{fmt_usd(net_u)}</span></td>
         </tr>'''
 
@@ -270,7 +276,7 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
 <!-- NFT Collections -->
 <div class="tbl-wrap">
     <div class="tbl-title">NFT Trading Breakdown</div>
-    <div class="tbl-note">Top collections by ETH volume &middot; All values in ETH</div>
+    <div class="tbl-note">Top collections by ETH volume &middot; 0-ETH transfers excluded from sells &middot; All values in ETH</div>
     <table>
         <thead>
             <tr>
@@ -279,6 +285,7 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
                 <th>ETH Spent</th>
                 <th># Sold</th>
                 <th>ETH Received</th>
+                <th>Still Holds</th>
                 <th>Net (ETH)</th>
             </tr>
         </thead>
@@ -290,6 +297,7 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
                 <td class="num sell">{nft_total_out:.2f}</td>
                 <td class="num">{sum(v['sells'] for v in nft_data.values())}</td>
                 <td class="num buy">{nft_total_in:.2f}</td>
+                <td class="num" style="color:#58a6ff">{sum(max(0, v['buys'] - v['sells'] - v['transfers']) for v in nft_data.values())}</td>
                 <td class="num {'profit' if nft_net > 0 else 'loss'}">{nft_net:+.2f}<span class="usd-sub">{fmt_usd(nft_net_usd)}</span></td>
             </tr>
         </tbody>
@@ -393,30 +401,33 @@ def build_gvc_report(data):
             <td class="num {'profit' if m_net > 0 else 'loss'}">{m_net:+.2f}<span class="usd-sub">{fmt_usd(m_net_usd)}</span></td>
         </tr>'''
 
-    # Exclude transfers between trading and vault wallets
+    # Separate real sales (with ETH) from transfers (0 ETH moves to vault etc)
     vault = data['vault_wallet'].lower()
     trading = data['trading_wallet'].lower()
     buys = [t for t in gvc_trades if t['type'] == 'buy']
-    sells = [t for t in gvc_trades if t['type'] == 'sell']
+    real_sells = [t for t in gvc_trades if t['type'] == 'sell' and t['value_eth'] > 0.001]
+    transfers = [t for t in gvc_trades if t['type'] == 'sell' and t['value_eth'] <= 0.001]
 
-    # Holdings: 265 bought - 257 sold from trading = 8 in trading; vault has 49
-    gvc_held_trading = len(buys) - len(sells)
+    # Holdings: bought - real sells - transfers out
+    gvc_held_trading = len(buys) - len(real_sells) - len(transfers)
     gvc_held_vault = 49  # from Etherscan: 70 in - 21 out
     gvc_held_total = gvc_held_trading + gvc_held_vault
 
     total_buy_eth = sum(t['value_eth'] for t in buys)
-    total_sell_eth = sum(t['value_eth'] for t in sells)
+    total_sell_eth = sum(t['value_eth'] for t in real_sells)
     total_buy_usd = sum(t['value_eth'] * get_price(prices, t['date']) for t in buys if t['date'])
-    total_sell_usd = sum(t['value_eth'] * get_price(prices, t['date']) for t in sells if t['date'])
+    total_sell_usd = sum(t['value_eth'] * get_price(prices, t['date']) for t in real_sells if t['date'])
     net_eth = total_sell_eth - total_buy_eth
     net_usd = total_sell_usd - total_buy_usd
 
-    # Monthly breakdown
+    # Monthly breakdown (real trades only)
     monthly = {}
     for t in gvc_trades:
         if not t['date']:
             continue
-        month = t['date'][:7]  # YYYY-MM
+        if t['type'] == 'sell' and t['value_eth'] <= 0.001:
+            continue  # skip transfers
+        month = t['date'][:7]
         if month not in monthly:
             monthly[month] = {'buys': 0, 'sells': 0, 'eth_in': 0, 'eth_out': 0, 'usd_in': 0, 'usd_out': 0}
         p = get_price(prices, t['date'])
@@ -564,7 +575,7 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
         <div class="hc-label">ETH Received from GVC</div>
         <div class="hc-value buy">{total_sell_eth:.2f} ETH</div>
         <div class="hc-usd buy">{fmt_usd(total_sell_usd)}</div>
-        <div class="hc-sub">{len(sells)} sales</div>
+        <div class="hc-sub">{len(real_sells)} sales</div>
     </div>
     <div class="hero-card hc-net">
         <div class="hc-label">GVC Net P&L</div>
@@ -582,7 +593,7 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
     </div>
     <div class="stat">
         <div class="stat-label">Total Sold</div>
-        <div class="stat-value">{len(sells)}</div>
+        <div class="stat-value">{len(real_sells)}</div>
         <div class="stat-sub">GVC NFTs</div>
     </div>
     <div class="stat">
@@ -592,7 +603,7 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
     </div>
     <div class="stat">
         <div class="stat-label">Avg Buy / Sell</div>
-        <div class="stat-value"><span class="sell">{total_buy_eth/max(len(buys),1):.3f}</span> / <span class="buy">{total_sell_eth/max(len(sells),1):.3f}</span></div>
+        <div class="stat-value"><span class="sell">{total_buy_eth/max(len(buys),1):.3f}</span> / <span class="buy">{total_sell_eth/max(len(real_sells),1):.3f}</span></div>
         <div class="stat-sub">ETH per GVC</div>
     </div>
 </div>
@@ -617,7 +628,7 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
                 <td class="wallet-name">TOTAL</td>
                 <td class="num">{len(buys)}</td>
                 <td class="num sell">{total_buy_eth:.2f}</td>
-                <td class="num">{len(sells)}</td>
+                <td class="num">{len(real_sells)}</td>
                 <td class="num buy">{total_sell_eth:.2f}</td>
                 <td class="num {'profit' if net_eth > 0 else 'loss'}">{net_eth:+.2f}<span class="usd-sub">{fmt_usd(net_usd)}</span></td>
             </tr>
@@ -671,7 +682,7 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
     with open('public/gvc.html', 'w') as f:
         f.write(html)
     print(f'\nGVC report saved to public/gvc.html')
-    print(f'GVC: {len(buys)} bought ({total_buy_eth:.2f} ETH) | {len(sells)} sold ({total_sell_eth:.2f} ETH) | Net: {net_eth:+.2f} ETH ({fmt_usd(net_usd)})')
+    print(f'GVC: {len(buys)} bought ({total_buy_eth:.2f} ETH) | {len(real_sells)} sold ({total_sell_eth:.2f} ETH) | Net: {net_eth:+.2f} ETH ({fmt_usd(net_usd)})')
 
 
 if __name__ == '__main__':
