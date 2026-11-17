@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wallet Tracker — 0x2546...591D</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0a0e14;
+    color: #c9d1d9;
+    padding: 24px 28px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }
+h1 { color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+h1 code { color: #58a6ff; font-size: 13px; font-weight: 400; margin-left: 8px; }
+.ts { color: #3d4450; font-size: 10px; }
+.hero { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.hero-card {
+    background: #111820;
+    border: 1px solid #1c2432;
+    border-radius: 10px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+}
+.hero-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+}
+.hc-in::before { background: #3fb950; }
+.hc-out::before { background: #f85149; }
+.hc-net::before { background: #58a6ff; }
+.hc-label { color: #6e7681; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+.hc-value { font-size: 32px; font-weight: 800; margin-top: 4px; letter-spacing: -1px; font-family: 'SF Mono', monospace; }
+.hc-usd { font-size: 14px; font-weight: 600; margin-top: 2px; font-family: 'SF Mono', monospace; opacity: 0.7; }
+.hc-sub { color: #3d4450; font-size: 10px; margin-top: 2px; }
+.section { margin-bottom: 20px; }
+.section-title { color: #fff; font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+.tbl-wrap {
+    background: #111820;
+    border: 1px solid #1c2432;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+.tbl-title { padding: 12px 16px 0; color: #fff; font-size: 13px; font-weight: 700; }
+.tbl-note { padding: 2px 16px 0; color: #3d4450; font-size: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th {
+    text-align: right;
+    color: #3d4450;
+    font-weight: 600;
+    padding: 8px 12px;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #1c2432;
+    white-space: nowrap;
+}
+th:first-child { text-align: left; }
+td { padding: 8px 12px; border-bottom: 1px solid #141c27; }
+.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-family: 'SF Mono', monospace;
+    font-size: 12px;
+}
+.wallet-name { font-weight: 600; color: #e6edf3; white-space: nowrap; }
+.addr { color: #3d4450; font-size: 9px; font-family: 'SF Mono', monospace; margin-left: 6px; }
+.total-row { background: #0d1219; font-weight: 700; }
+.total-row td { border-top: 2px solid #1c2432; padding-top: 10px; padding-bottom: 10px; }
+.buy { color: #3fb950; }
+.sell { color: #f85149; }
+.profit { color: #3fb950; }
+.loss { color: #f85149; }
+.usd-sub { color: #6e7681; font-size: 9px; margin-left: 4px; display: block; font-weight: 400; }
+.foot { font-size: 9px; color: #2d333b; padding-top: 10px; border-top: 1px solid #1c2432; }
+.foot code { font-size: 8px; color: #3d4450; }
+@media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    body { padding: 14px; }
+}
+@media (max-width: 600px) {
+    table { font-size: 10px; }
+    th, td { padding: 6px 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+    <h1>Wallet Tracker<code>0x2546...591D</code></h1>
+    <span class="ts">Updated Nov 17, 2026 05:52 UTC</span>
+</div>
+
+<div class="hero">
+    <div class="hero-card hc-out">
+        <div class="hc-label">Total ETH Spent</div>
+        <div class="hc-value sell">470.95 ETH</div>
+        <div class="hc-usd sell">$960,365</div>
+        <div class="hc-sub">NFT buys + token purchases</div>
+    </div>
+    <div class="hero-card hc-in">
+        <div class="hc-label">Total ETH Received</div>
+        <div class="hc-value buy">476.59 ETH</div>
+        <div class="hc-usd buy">$331,093</div>
+        <div class="hc-sub">NFT sells + token sells</div>
+    </div>
+    <div class="hero-card hc-net">
+        <div class="hc-label">Net P&L</div>
+        <div class="hc-value buy">+5.64 ETH</div>
+        <div class="hc-usd sell">$629,272</div>
+        <div class="hc-sub">USD at time of each tx (DeFiLlama)</div>
+    </div>
+</div>
+
+<!-- NFT Collections -->
+<div class="tbl-wrap">
+    <div class="tbl-title">NFT Trading Breakdown</div>
+    <div class="tbl-note">Top collections by ETH volume &middot; All values in ETH</div>
+    <table>
+        <thead>
+            <tr>
+                <th style="text-align:left">Collection</th>
+                <th># Bought</th>
+                <th>ETH Spent</th>
+                <th># Sold</th>
+                <th>ETH Received</th>
+                <th>Net (ETH)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td class="wallet-name">GVC<span class="addr">Good Vibes Club</span></td>
+            <td class="num">265</td>
+            <td class="num buy">124.75</td>
+            <td class="num">257</td>
+            <td class="num sell">29.98</td>
+            <td class="num loss">-94.77<span class="usd-sub">$320,208</span></td>
+        </tr><tr>
+            <td class="wallet-name">DOODLE<span class="addr">Doodles</span></td>
+            <td class="num">37</td>
+            <td class="num buy">29.31</td>
+            <td class="num">37</td>
+            <td class="num sell">8.38</td>
+            <td class="num loss">-20.93<span class="usd-sub">$67,968</span></td>
+        </tr><tr>
+            <td class="wallet-name">Ͼ721<span class="addr">CryptoPunks 721</span></td>
+            <td class="num">2</td>
+            <td class="num buy">30.20</td>
+            <td class="num">2</td>
+            <td class="num sell">0.00</td>
+            <td class="num loss">-30.20<span class="usd-sub">$63,316</span></td>
+        </tr><tr>
+            <td class="wallet-name">PPG<span class="addr">PudgyPenguins</span></td>
+            <td class="num">1</td>
+            <td class="num buy">10.97</td>
+            <td class="num">1</td>
+            <td class="num sell">9.45</td>
+            <td class="num loss">-1.53<span class="usd-sub">$4,580</span></td>
+        </tr><tr>
+            <td class="wallet-name">QRKS<span class="addr">Quirkies</span></td>
+            <td class="num">13</td>
+            <td class="num buy">4.82</td>
+            <td class="num">13</td>
+            <td class="num sell">9.38</td>
+            <td class="num profit">+4.56<span class="usd-sub">$18,415</span></td>
+        </tr><tr>
+            <td class="wallet-name">MOONBIRD<span class="addr">Moonbirds</span></td>
+            <td class="num">8</td>
+            <td class="num buy">4.61</td>
+            <td class="num">8</td>
+            <td class="num sell">8.71</td>
+            <td class="num profit">+4.10<span class="usd-sub">$23,448</span></td>
+        </tr><tr>
+            <td class="wallet-name">BAYC<span class="addr">BoredApeYachtClub</span></td>
+            <td class="num">3</td>
+            <td class="num buy">10.75</td>
+            <td class="num">3</td>
+            <td class="num sell">0.00</td>
+            <td class="num loss">-10.75<span class="usd-sub">$24,696</span></td>
+        </tr><tr>
+            <td class="wallet-name">DOOPL<span class="addr">Dooplicator</span></td>
+            <td class="num">68</td>
+            <td class="num buy">8.76</td>
+            <td class="num">46</td>
+            <td class="num sell">1.87</td>
+            <td class="num loss">-6.90<span class="usd-sub">$16,445</span></td>
+        </tr><tr>
+            <td class="wallet-name">AZUKI<span class="addr">Azuki</span></td>
+            <td class="num">4</td>
+            <td class="num buy">6.29</td>
+            <td class="num">4</td>
+            <td class="num sell">1.65</td>
+            <td class="num loss">-4.63<span class="usd-sub">$9,550</span></td>
+        </tr><tr>
+            <td class="wallet-name">SAMSPRATTMASKSOFLUCI<span class="addr">Sam Spratt - Masks o</span></td>
+            <td class="num">1</td>
+            <td class="num buy">5.70</td>
+            <td class="num">1</td>
+            <td class="num sell">0.00</td>
+            <td class="num loss">-5.70<span class="usd-sub">$13,155</span></td>
+        </tr><tr>
+            <td class="wallet-name">MYTHICS<span class="addr">Moonbirds: Mythics</span></td>
+            <td class="num">10</td>
+            <td class="num buy">2.84</td>
+            <td class="num">10</td>
+            <td class="num sell">2.81</td>
+            <td class="num loss">-0.03<span class="usd-sub">$52</span></td>
+        </tr><tr>
+            <td class="wallet-name">ALIENFRENS<span class="addr">ALIENFRENS</span></td>
+            <td class="num">10</td>
+            <td class="num buy">4.11</td>
+            <td class="num">0</td>
+            <td class="num sell">0.00</td>
+            <td class="num loss">-4.11<span class="usd-sub">$11,561</span></td>
+        </tr>
+            <tr class="total-row">
+                <td class="wallet-name">ALL NFTs (96 collections)</td>
+                <td class="num">742</td>
+                <td class="num sell">271.27</td>
+                <td class="num">523</td>
+                <td class="num buy">86.55</td>
+                <td class="num loss">-184.72<span class="usd-sub">$515,962</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Token Trading -->
+<div class="tbl-wrap">
+    <div class="tbl-title">Token Trading</div>
+    <div class="tbl-note">ERC-20 tokens (excludes WETH wraps) &middot; All values in ETH</div>
+    <table>
+        <thead>
+            <tr>
+                <th style="text-align:left">Token</th>
+                <th>ETH Spent</th>
+                <th>ETH Received</th>
+                <th>Net (ETH)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td class="wallet-name">VIBESTR<span class="addr">VibeStrategy</span></td>
+            <td class="num buy">28.43</td>
+            <td class="num sell">13.82</td>
+            <td class="num loss">-14.61<span class="usd-sub">$81,357</span></td>
+        </tr><tr>
+            <td class="wallet-name">Blur Pool<span class="addr">Blur Pool</span></td>
+            <td class="num buy">16.87</td>
+            <td class="num sell">0.00</td>
+            <td class="num loss">-16.87<span class="usd-sub">$43,193</span></td>
+        </tr><tr>
+            <td class="wallet-name">USDC<span class="addr">USDC</span></td>
+            <td class="num buy">0.96</td>
+            <td class="num sell">5.03</td>
+            <td class="num profit">+4.06<span class="usd-sub">$13,401</span></td>
+        </tr><tr>
+            <td class="wallet-name">WLFI<span class="addr">World Liberty Financial</span></td>
+            <td class="num buy">3.25</td>
+            <td class="num sell">2.16</td>
+            <td class="num loss">-1.09<span class="usd-sub">$2,202</span></td>
+        </tr><tr>
+            <td class="wallet-name">APE<span class="addr">ApeCoin</span></td>
+            <td class="num buy">0.05</td>
+            <td class="num sell">0.05</td>
+            <td class="num loss">-0.00<span class="usd-sub">$4</span></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="foot">
+    <strong>Trading:</strong> <code>0x2546cf80eb6fb4ee0f22e1a9803Fb268FF7B591D</code>
+    &middot; <strong>Vault:</strong> <code>0xa799242db91ec215c5a2f6628f4cceda9b478727</code>
+    <br>Sources: Etherscan V2 (Ethereum mainnet) &middot; USD: DeFiLlama historical ETH/USD
+</div>
+
+</body>
+</html>

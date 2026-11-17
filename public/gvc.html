@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GVC Trading Report — 0x2546...591D</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0a0e14;
+    color: #c9d1d9;
+    padding: 24px 28px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+.hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }
+h1 { color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+h1 code { color: #58a6ff; font-size: 13px; font-weight: 400; margin-left: 8px; }
+.ts { color: #3d4450; font-size: 10px; }
+.hero { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.hero-card {
+    background: #111820;
+    border: 1px solid #1c2432;
+    border-radius: 10px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+}
+.hero-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+}
+.hc-in::before { background: #3fb950; }
+.hc-out::before { background: #f85149; }
+.hc-net::before { background: #58a6ff; }
+.hc-label { color: #6e7681; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+.hc-value { font-size: 32px; font-weight: 800; margin-top: 4px; letter-spacing: -1px; font-family: 'SF Mono', monospace; }
+.hc-usd { font-size: 14px; font-weight: 600; margin-top: 2px; font-family: 'SF Mono', monospace; opacity: 0.7; }
+.hc-sub { color: #3d4450; font-size: 10px; margin-top: 2px; }
+
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+.stat {
+    background: #111820;
+    border: 1px solid #1c2432;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+}
+.stat-label { color: #6e7681; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+.stat-value { font-size: 22px; font-weight: 800; margin-top: 4px; font-family: 'SF Mono', monospace; color: #e6edf3; }
+.stat-sub { color: #3d4450; font-size: 10px; margin-top: 2px; }
+
+.tbl-wrap {
+    background: #111820;
+    border: 1px solid #1c2432;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+.tbl-title { padding: 12px 16px 0; color: #fff; font-size: 13px; font-weight: 700; }
+.tbl-note { padding: 2px 16px 0; color: #3d4450; font-size: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th {
+    text-align: right;
+    color: #3d4450;
+    font-weight: 600;
+    padding: 8px 12px;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #1c2432;
+    white-space: nowrap;
+}
+th:first-child { text-align: left; }
+td { padding: 8px 12px; border-bottom: 1px solid #141c27; }
+.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-family: 'SF Mono', monospace;
+    font-size: 12px;
+}
+.wallet-name { font-weight: 600; color: #e6edf3; white-space: nowrap; }
+.addr { color: #3d4450; font-size: 9px; font-family: 'SF Mono', monospace; margin-left: 6px; }
+.total-row { background: #0d1219; font-weight: 700; }
+.total-row td { border-top: 2px solid #1c2432; padding-top: 10px; padding-bottom: 10px; }
+.buy { color: #3fb950; }
+.sell { color: #f85149; }
+.profit { color: #3fb950; }
+.loss { color: #f85149; }
+.usd-sub { color: #6e7681; font-size: 9px; margin-left: 4px; display: block; font-weight: 400; }
+.foot { font-size: 9px; color: #2d333b; padding-top: 10px; border-top: 1px solid #1c2432; }
+.foot code { font-size: 8px; color: #3d4450; }
+@media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    body { padding: 14px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+    <h1>GVC Trading Report<code>0x2546...591D</code></h1>
+    <span class="ts">Updated Nov 17, 2026 05:52 UTC</span>
+</div>
+
+<div class="hero">
+    <div class="hero-card hc-out">
+        <div class="hc-label">ETH Spent on GVC</div>
+        <div class="hc-value sell">124.75 ETH</div>
+        <div class="hc-usd sell">$407,367</div>
+        <div class="hc-sub">265 purchases</div>
+    </div>
+    <div class="hero-card hc-in">
+        <div class="hc-label">ETH Received from GVC</div>
+        <div class="hc-value buy">29.98 ETH</div>
+        <div class="hc-usd buy">$87,158</div>
+        <div class="hc-sub">257 sales</div>
+    </div>
+    <div class="hero-card hc-net">
+        <div class="hc-label">GVC Net P&L</div>
+        <div class="hc-value sell">-94.77 ETH</div>
+        <div class="hc-usd sell">$320,208</div>
+        <div class="hc-sub">USD at time of each tx</div>
+    </div>
+</div>
+
+<div class="stats-row">
+    <div class="stat">
+        <div class="stat-label">Total Bought</div>
+        <div class="stat-value">265</div>
+        <div class="stat-sub">GVC NFTs</div>
+    </div>
+    <div class="stat">
+        <div class="stat-label">Total Sold</div>
+        <div class="stat-value">257</div>
+        <div class="stat-sub">GVC NFTs</div>
+    </div>
+    <div class="stat">
+        <div class="stat-label">Still Holds</div>
+        <div class="stat-value" style="color:#58a6ff">57</div>
+        <div class="stat-sub">8 trading + 49 vault</div>
+    </div>
+    <div class="stat">
+        <div class="stat-label">Avg Buy / Sell</div>
+        <div class="stat-value"><span class="sell">0.471</span> / <span class="buy">0.117</span></div>
+        <div class="stat-sub">ETH per GVC</div>
+    </div>
+</div>
+
+<div class="tbl-wrap">
+    <div class="tbl-title">GVC Monthly Breakdown</div>
+    <div class="tbl-note">All values in ETH &middot; Net column includes USD at time of transaction</div>
+    <table>
+        <thead>
+            <tr>
+                <th style="text-align:left">Month</th>
+                <th># Bought</th>
+                <th>ETH Spent</th>
+                <th># Sold</th>
+                <th>ETH Received</th>
+                <th>Net (ETH)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td class="wallet-name">Mar 2025</td>
+            <td class="num">6</td>
+            <td class="num sell">0.07</td>
+            <td class="num">2</td>
+            <td class="num buy">0.95</td>
+            <td class="num profit">+0.88<span class="usd-sub">$1,707</span></td>
+        </tr><tr>
+            <td class="wallet-name">Apr 2025</td>
+            <td class="num">6</td>
+            <td class="num sell">2.63</td>
+            <td class="num">1</td>
+            <td class="num buy">2.83</td>
+            <td class="num profit">+0.20<span class="usd-sub">$338</span></td>
+        </tr><tr>
+            <td class="wallet-name">May 2025</td>
+            <td class="num">33</td>
+            <td class="num sell">24.02</td>
+            <td class="num">9</td>
+            <td class="num buy">0.00</td>
+            <td class="num loss">-24.02<span class="usd-sub">$59,987</span></td>
+        </tr><tr>
+            <td class="wallet-name">Jun 2025</td>
+            <td class="num">3</td>
+            <td class="num sell">1.66</td>
+            <td class="num">12</td>
+            <td class="num buy">2.38</td>
+            <td class="num profit">+0.72<span class="usd-sub">$1,924</span></td>
+        </tr><tr>
+            <td class="wallet-name">Jul 2025</td>
+            <td class="num">13</td>
+            <td class="num sell">6.35</td>
+            <td class="num">36</td>
+            <td class="num buy">0.00</td>
+            <td class="num loss">-6.35<span class="usd-sub">$22,978</span></td>
+        </tr><tr>
+            <td class="wallet-name">Aug 2025</td>
+            <td class="num">12</td>
+            <td class="num sell">3.97</td>
+            <td class="num">11</td>
+            <td class="num buy">0.00</td>
+            <td class="num loss">-3.97<span class="usd-sub">$17,501</span></td>
+        </tr><tr>
+            <td class="wallet-name">Sep 2025</td>
+            <td class="num">85</td>
+            <td class="num sell">31.13</td>
+            <td class="num">71</td>
+            <td class="num buy">0.00</td>
+            <td class="num loss">-31.13<span class="usd-sub">$130,751</span></td>
+        </tr><tr>
+            <td class="wallet-name">Oct 2025</td>
+            <td class="num">25</td>
+            <td class="num sell">15.47</td>
+            <td class="num">19</td>
+            <td class="num buy">10.60</td>
+            <td class="num loss">-4.87<span class="usd-sub">$22,263</span></td>
+        </tr><tr>
+            <td class="wallet-name">Nov 2025</td>
+            <td class="num">21</td>
+            <td class="num sell">8.67</td>
+            <td class="num">14</td>
+            <td class="num buy">0.48</td>
+            <td class="num loss">-8.19<span class="usd-sub">$25,031</span></td>
+        </tr><tr>
+            <td class="wallet-name">Dec 2025</td>
+            <td class="num">8</td>
+            <td class="num sell">4.16</td>
+            <td class="num">7</td>
+            <td class="num buy">1.00</td>
+            <td class="num loss">-3.15<span class="usd-sub">$9,431</span></td>
+        </tr><tr>
+            <td class="wallet-name">Jan 2026</td>
+            <td class="num">19</td>
+            <td class="num sell">9.93</td>
+            <td class="num">34</td>
+            <td class="num buy">2.56</td>
+            <td class="num loss">-7.37<span class="usd-sub">$21,287</span></td>
+        </tr><tr>
+            <td class="wallet-name">Feb 2026</td>
+            <td class="num">7</td>
+            <td class="num sell">1.81</td>
+            <td class="num">7</td>
+            <td class="num buy">7.50</td>
+            <td class="num profit">+5.69<span class="usd-sub">$12,069</span></td>
+        </tr><tr>
+            <td class="wallet-name">Mar 2026</td>
+            <td class="num">23</td>
+            <td class="num sell">14.89</td>
+            <td class="num">0</td>
+            <td class="num buy">0.00</td>
+            <td class="num loss">-14.89<span class="usd-sub">$30,465</span></td>
+        </tr><tr>
+            <td class="wallet-name">Apr 2026</td>
+            <td class="num">0</td>
+            <td class="num sell">0.00</td>
+            <td class="num">2</td>
+            <td class="num buy">0.69</td>
+            <td class="num profit">+0.69<span class="usd-sub">$1,584</span></td>
+        </tr><tr>
+            <td class="wallet-name">May 2026</td>
+            <td class="num">4</td>
+            <td class="num sell">0.00</td>
+            <td class="num">11</td>
+            <td class="num buy">0.46</td>
+            <td class="num profit">+0.46<span class="usd-sub">$970</span></td>
+        </tr><tr>
+            <td class="wallet-name">Jun 2026</td>
+            <td class="num">0</td>
+            <td class="num sell">0.00</td>
+            <td class="num">1</td>
+            <td class="num buy">0.52</td>
+            <td class="num profit">+0.52<span class="usd-sub">$892</span></td>
+        </tr><tr>
+            <td class="wallet-name">Sep 2026</td>
+            <td class="num">0</td>
+            <td class="num sell">0.00</td>
+            <td class="num">20</td>
+            <td class="num buy">0.00</td>
+            <td class="num loss">+0.00<span class="usd-sub">$0</span></td>
+        </tr>
+            <tr class="total-row">
+                <td class="wallet-name">TOTAL</td>
+                <td class="num">265</td>
+                <td class="num sell">124.75</td>
+                <td class="num">257</td>
+                <td class="num buy">29.98</td>
+                <td class="num loss">-94.77<span class="usd-sub">$320,208</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="foot">
+    <strong>Wallet:</strong> <code>0x2546cf80eb6fb4ee0f22e1a9803Fb268FF7B591D</code>
+    &middot; <strong>Vault:</strong> <code>0xa799242db91ec215c5a2f6628f4cceda9b478727</code>
+    <br>Sources: Etherscan V2 (Ethereum mainnet) &middot; USD: DeFiLlama historical ETH/USD
+    <br>GVC Contract: <code>0xb8ea78fcacef50d41375e44e6814ebba36bb33c4</code>
+</div>
+
+</body>
+</html>
