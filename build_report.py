@@ -331,8 +331,54 @@ def build_gvc_report(data):
     addr = data['trading_wallet']
     addr_short = addr[:6] + '...' + addr[-4:]
 
+    token_trades = data.get('token_trades', [])
+
     # Filter to GVC only
     gvc_trades = [t for t in nft_trades if t['symbol'] == 'GVC']
+
+    # VIBESTR token trades
+    vibestr_trades = [t for t in token_trades if t['token'] == 'VIBESTR']
+    vib_buys = [t for t in vibestr_trades if t['type'] == 'in']
+    vib_sells = [t for t in vibestr_trades if t['type'] == 'out']
+    vib_buy_eth = sum(t['value_eth'] for t in vib_buys)
+    vib_sell_eth = sum(t['value_eth'] for t in vib_sells)
+    vib_buy_usd = sum(t['value_eth'] * get_price(prices, t['date']) for t in vib_buys if t['date'])
+    vib_sell_usd = sum(t['value_eth'] * get_price(prices, t['date']) for t in vib_sells if t['date'])
+    vib_net_eth = vib_sell_eth - vib_buy_eth
+    vib_net_usd = vib_sell_usd - vib_buy_usd
+
+    # VIBESTR monthly breakdown
+    vib_monthly = {}
+    for t in vibestr_trades:
+        if not t['date']:
+            continue
+        month = t['date'][:7]
+        if month not in vib_monthly:
+            vib_monthly[month] = {'buys': 0, 'sells': 0, 'eth_in': 0, 'eth_out': 0, 'usd_in': 0, 'usd_out': 0}
+        p = get_price(prices, t['date'])
+        if t['type'] == 'in':
+            vib_monthly[month]['buys'] += 1
+            vib_monthly[month]['eth_out'] += t['value_eth']
+            vib_monthly[month]['usd_out'] += t['value_eth'] * p
+        else:
+            vib_monthly[month]['sells'] += 1
+            vib_monthly[month]['eth_in'] += t['value_eth']
+            vib_monthly[month]['usd_in'] += t['value_eth'] * p
+
+    vib_month_rows = ''
+    for month in sorted(vib_monthly.keys()):
+        m = vib_monthly[month]
+        m_net = m['eth_in'] - m['eth_out']
+        m_net_usd = m['usd_in'] - m['usd_out']
+        label = datetime.strptime(month, '%Y-%m').strftime('%b %Y')
+        vib_month_rows += f'''<tr>
+            <td class="wallet-name">{label}</td>
+            <td class="num">{m['buys']}</td>
+            <td class="num sell">{m['eth_out']:.2f}</td>
+            <td class="num">{m['sells']}</td>
+            <td class="num buy">{m['eth_in']:.2f}</td>
+            <td class="num {'profit' if m_net > 0 else 'loss'}">{m_net:+.2f}<span class="usd-sub">{fmt_usd(m_net_usd)}</span></td>
+        </tr>'''
 
     # Exclude transfers between trading and vault wallets
     vault = data['vault_wallet'].lower()
@@ -561,6 +607,38 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
                 <td class="num">{len(sells)}</td>
                 <td class="num buy">{total_sell_eth:.2f}</td>
                 <td class="num {'profit' if net_eth > 0 else 'loss'}">{net_eth:+.2f}<span class="usd-sub">{fmt_usd(net_usd)}</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- VIBESTR Trading -->
+<div class="tbl-wrap" style="border-left: 3px solid #a855f7;">
+    <div class="tbl-title" style="display:flex;justify-content:space-between;align-items:baseline;">
+        <span>VIBESTR Token Trading</span>
+        <span style="font-size:11px;font-family:'SF Mono',monospace;font-weight:800;color:{'#3fb950' if vib_net_eth > 0 else '#f85149'}">{vib_net_eth:+.2f} ETH <span style="color:#6e7681;font-weight:400">({fmt_usd(vib_net_usd)})</span></span>
+    </div>
+    <div class="tbl-note">{len(vib_buys)} buys ({vib_buy_eth:.2f} ETH / {fmt_usd(vib_buy_usd)}) &middot; {len(vib_sells)} sells ({vib_sell_eth:.2f} ETH / {fmt_usd(vib_sell_usd)})</div>
+    <table>
+        <thead>
+            <tr>
+                <th style="text-align:left">Month</th>
+                <th># Bought</th>
+                <th>ETH Spent</th>
+                <th># Sold</th>
+                <th>ETH Received</th>
+                <th>Net (ETH)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {vib_month_rows}
+            <tr class="total-row">
+                <td class="wallet-name">TOTAL</td>
+                <td class="num">{len(vib_buys)}</td>
+                <td class="num sell">{vib_buy_eth:.2f}</td>
+                <td class="num">{len(vib_sells)}</td>
+                <td class="num buy">{vib_sell_eth:.2f}</td>
+                <td class="num {'profit' if vib_net_eth > 0 else 'loss'}">{vib_net_eth:+.2f}<span class="usd-sub">{fmt_usd(vib_net_usd)}</span></td>
             </tr>
         </tbody>
     </table>
