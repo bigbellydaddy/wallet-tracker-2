@@ -41,11 +41,7 @@ def build_full_report(data):
     addr = data['trading_wallet']
     addr_short = addr[:6] + '...' + addr[-4:]
 
-    total_in = eth_totals.get('eth_in', 0)
-    total_out = eth_totals.get('eth_out', 0)
-    net = total_in - total_out
-
-    # Calculate USD totals from individual trades
+    # USD totals computed from individual trades below
     total_in_usd = 0
     total_out_usd = 0
 
@@ -105,6 +101,13 @@ def build_full_report(data):
             total_out_usd += v['usd_out']
 
     net_usd = total_in_usd - total_out_usd
+
+    # Hero card totals from actual trades (not raw ETH flows which double-count WETH)
+    token_total_in = sum(v['eth_in'] for v in token_data.values())
+    token_total_out = sum(v['eth_out'] for v in token_data.values())
+    total_out = nft_total_out + token_total_out
+    total_in = nft_total_in + token_total_in
+    net = total_in - total_out
 
     # Build NFT collection rows
     nft_rows = ''
