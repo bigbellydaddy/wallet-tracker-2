@@ -77,8 +77,8 @@ def build_full_report(data):
     token_data = {}
     for t in token_trades:
         sym = t['token']
-        if sym == 'WETH':
-            continue  # WETH is just wrapping/unwrapping ETH
+        if sym in ('WETH', 'Blur Pool'):
+            continue  # wrapping/unwrapping ETH, not real trades
         if sym not in token_data:
             token_data[sym] = {'name': t['token_name'], 'in': 0, 'out': 0, 'eth_in': 0, 'eth_out': 0, 'usd_in': 0, 'usd_out': 0}
         p = get_price(prices, t['date']) if t['date'] else 0
